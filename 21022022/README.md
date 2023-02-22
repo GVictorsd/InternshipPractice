@@ -1,7 +1,7 @@
 # Java Collections
 
 ## Hierarchy
-'''
+```
 Iterable
     Collection
         List
@@ -17,7 +17,8 @@ Iterable
             LinkedHashSet
             Sortedset
                 TreeSet
-'''
+```
+
 ## Methods of Collection Interface
 - boolean add(E e): insert
 - bool addAll(Collection <extends E> c): insert specific collection elems
