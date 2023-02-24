@@ -1,10 +1,10 @@
 package vehicle;
 
 public class Vehicle {
-    protected String make;
-    protected String model;
-    protected int year;
-    protected String color;
+    private String make;
+    private String model;
+    private int year;
+    private String color;
     
     public Vehicle(String make, String model, int year, String color){
         this.make = make;

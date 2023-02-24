@@ -4,7 +4,7 @@ package car;
 import vehicle.*;
 
 public class Car extends Vehicle {
-    protected int numDoors;
+    private int numDoors;
 
     public Car(String make, String model, int year, String color, int numDoors){
         super(make, model, year, color);

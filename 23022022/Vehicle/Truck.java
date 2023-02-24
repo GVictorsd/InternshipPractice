@@ -3,7 +3,7 @@ package truck;
 import vehicle.*;
 
 public class Truck extends Vehicle {
-    protected double cargoCapacity;
+    private double cargoCapacity;
 
     public Truck(String make, String model, int year, String color, double cargoCapacity){
         super(make, model, year, color);
