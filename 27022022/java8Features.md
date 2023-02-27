@@ -1,0 +1,22 @@
+# Java 8 Features
+
+## foreach() method
+- foreach() method was introduced for iterables as an alternative to traversing through iterators.
+
+```
+import java.util.ArrayList;
+
+public class Main{
+    public static void main(String[] args) {
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        for(int i=0; i<10; i++){
+            list.add(i);
+        }
+
+        list.forEach( i -> {
+            System.out.println(i);
+        });
+
+    }
+}
+```
