@@ -269,3 +269,117 @@ SELECT NULLIF(2, 2) -> returns null
 SELECT 10/null -> returns null
 SELECT 10 / NULLIF(var, 0) -> returns null if var is 0
 ```
+
+### Droping/adding constraints
+```
+ALTER TABLE person DROP CONSTRAINT <constraint>;
+note: constraint is obtained with \d <table name>
+
+# Drop primary key constraint on key
+ALTER TABLE person DROP CONSTRAINT person_pkey;
+
+# Adding the constraint back
+# works if all the id data are unique
+ALTER TABLE person ADD PRIMARY KEY(<column_name>);
+ALTER TABLE person ADD PRIMARY KEY(id);
+```
+
+### Unique constraint
+primary keys are used to identify a record in the table
+while unique constraint is used to maintain unique records
+
+```
+ALTER TABLE person ADD CONSTRAINT <constraint_name> UNIQUE(<constraint field>);
+ALTER TABLE person ADD CONSTRAINT unique_email_address UNIQUE(email);
+
+# or 
+ALTER TABLE person ADD UNIQUE(email);    <- postgres defines the name
+
+# Droping
+ALTER TABLE person DROP <constrant name(obtained by \d <table_name>)>
+```
+
+### DISTINCT
+returns distinct output from the query
+```
+SELECT DISTINCT name FROM person;
+```
+
+### Check constraint
+Checks if the value matches an expression before inserting
+
+```
+# allow only 'Male' and 'Female' values to the gender field
+ALTER TABLE person ADD CONSTRAINT gender_constraint CHECK(gender = 'Female' OR gender = 'Male');
+
+# or let postgres assign name to the constraint
+ALTER TABLE person ADD CHECK(gender = 'Female' OR gender = 'Male');
+```
+
+### DELETEing Records
+```
+# delete all the entries
+DELETE FROM person;
+
+DELETE FROM person WHERE id = 1;
+```
+
+### UPDATEing Records
+```
+UPDATE person SET email = 'hello@123.com' WHERE id = 5;
+
+# update multiple entries
+UPDATE person SET first_name = 'Mini', last_name = 'Mouse', email = 'minimouse@clubhouse.com' 
+WHERE id = 7;
+```
+
+### On conflict, do nothing
+on confilict can only be used on fields with unique or exclusive constraints like primary key
+
+```
+(...)
+ON CONFLICT (conflicting field) DO NOTHING;
+
+INSERT INTO person (id, name)
+VALUES (3, 'PINK')
+ON CONFLICT (id) DO NOTHING;
+```
+
+### Do Update
+when a conflict happens, update the desired fields with the new ones
+ex, consider a user submitting their details twice... id would be same for both the queries
+but we'd like to update other fields with new ones
+
+```
+# if id already exists, the entry is updated with new data
+
+INSERT INTO person(id, first_name, last_name, email)
+VALUES(9, 'micky', 'mouse', 'micky@mouse.com)
+ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.mail,
+first_name = EXCLUDED.first_name, last_name = EXCLUDED.last_name;
+
+# EXCLUDED.data is the new data from the query
+```
+
+## Foreign key and joins
+
+### Foreign key
+A key in the current table which references the primary key of other table.
+
+```
+car_id BIGINT REFERENCES id(car)
+
+# example
+create table car(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    ...
+)
+create table person(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    first_name varchar(20) not null,
+    ...
+    car_id BIGINT REFERENCES id(car),
+    UNIQUE(car_id)
+);
+
+```
