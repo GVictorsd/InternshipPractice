@@ -1,6 +1,6 @@
 # PostgreSQL
 
-## Setting up
+### Setting up
 - Make sure the server is running
 ```
 sudo systemctl start postgresql
@@ -88,7 +88,7 @@ CREATE TABLE person (
 );
 ```
 
-## Inserting data
+### Inserting data
 ```
 INSERT INTO person (
     name,
@@ -149,7 +149,7 @@ similar to
 SELECT * FROM person LIMIT 5;
 ```
 
-# In
+### In
 Querying from a list
 
 ```
@@ -238,7 +238,7 @@ SELECT id, make, model , price, ROUND(price * 0.5, 2)
 FROM car;
 ```
 
-# Alias (AS)
+### Alias (AS)
 give name to the column name
 ```
 SELECT id, make, model , price, ROUND(price * 0.5, 2) AS new_price
@@ -382,4 +382,201 @@ create table person(
     UNIQUE(car_id)
 );
 
+```
+
+## Joins
+
+### INNER Join
+Joins the records present in both the tables ie, in the actual table and the other table
+as foreign key
+
+```
+SELECT * FROM <tableA>
+JOIN <tableB> ON <columns to use for join>;
+
+SELECT * FROM person
+JOIN car ON person.car_id = car.id;
+
+# get few columns from the tables
+SELECT person.first_name, car.make, car.model, car.price
+FROM person
+JOIN car ON person.car_id = car.id;
+```
+
+### LEFT Join
+Joins the records with common relation between two tables and every record of first table
+
+```
+SELECT * FROM <tableA>
+LEFT JOIN <tableB> ON <columns to use for join>;
+
+SELECT * FROM person
+LEFT JOIN car ON person.car_id = car.id;
+
+```
+
+### Deleting Records with Foreign Keys
+Deleting an entry which is references by a foreign key in other table doesnt work
+In order to delete such entry, all the references to the current entry must be removed
+either by deleting all the entries that reference it or updating all the fodbuserdb=> update bikeowner set bike_id = NULL where bike_id = 4;reign key values to other value
+
+```
+dbuserdb=> select * from bike;dbuserdb=> update bikeowner set bike_id = NULL where bike_id = 4;
+ id |   make    |   model    |  price   
+----+-----------+------------+----------
+  2 | Pontiac   | Grand Prix | 13136.48
+  4 | Ford      | F-Series   | 11707.60
+
+dbuserdb=> select * from bikeowner;
+ id | first_name | last_name | gender | bike_id 
+----+------------+-----------+--------+---------
+  1 | Camellia   | Gilli     | Female |       2
+  3 | Berkeley   | Lawling   | Male   |       4
+
+dbuserdb=> Delete from bike where id = 4;
+ERROR:  update or delete on table "bike" violates foreign key constraint "bikeowner_bike_id_fkey" on table "bikeowner"
+DETAIL:  Key (id)=(4) is still referenced from table "bikeowner".
+
+# TO delete
+dbuserdb=> update bikeowner set bike_id = NULL where bike_id = 4;
+dbuserdb=> Delete from bike where id = 4;
+```
+
+## Importing data as CSV
+
+```
+\copy (<SQL query>) TO '<path to output file>' DELIMITER ',' CSV HEADER
+```
+
+## Serial and Sequences
+Sequence tables define the next value of the autoincrementing types like BIGSERIAL
+
+```
+# reset the sequence value to new value
+ALTER SEQUENCE <sequence_name> RESTART WITH <new value>
+```
+
+## Extensions
+
+```
+# see available extensions
+SELECT * FROM pg_available_extensions;
+```
+
+
+## Timestamps and Dates
+
+```
+SELECT NOW(); <- gives timestamp
+SELECT NOW()::DATE; <- cast to date(returns date)
+SELECT NOW()::TIME(); <- cast to time(returns time)
+
+```
+
+Data types for data and time
+- timestamp
+- date
+- time
+- interval
+
+### Adding and subtracting time
+```
+# Subtract 1 year from now
+SELECT NOW() - INTERVAL '1 YEAR'; 
+
+# add 10 months from now
+SELECT NOW() + INTERVAL '1 MONTHS'; 
+
+# can be casted to date
+SELECT (NOW() + INTERVAL '1 MONTHS')::DATE; 
+```
+
+### Extract
+get specific field from the timestamp
+
+```
+SELECT EXTRACT(YEAR FROM NOW())
+SELECT EXTRACT(MONTH FROM NOW())
+SELECT EXTRACT(DAY FROM NOW())
+SELECT EXTRACT(DOW FROM NOW()) <- Day of the week
+SELECT EXTRACT(CENTUARY FROM NOW())
+```
+
+### Age
+```
+AGE(NOW(), <reference date>)
+
+Select date_of_birth, AGE(NOW(), date_of_birth) AS age FROM person;
+```
+
+## Indexing
+Used to reduce the access time of a query
+
+### Analyze
+```
+EXPLAIN ANALYZE <query>;
+
+EXPLAIN ANALYZE SELECT id FROM person WHERE id = 20;
+```
+
+### Indexing need
+```
+# BAD queries
+
+# since unlike id, name is not indexed, it takes longer to search the entire table
+SELECT * FROM mytable WHERE name = 'NAME';
+SELECT * FROM mytable WHERE name like '%NAME%';
+```
+
+### Creating index
+```
+CREATE INDEX <index name> ON <TableName>(<columnName>);
+
+CREATE INDEX employees_name on employees(name);
+DROP INDEX <index_name>;
+```
+
+This doesnt help `SELECT * FROM mytable WHERE name like '%NAME%';` and still need sequential search;
+
+
+## Normalization and normal forms
+
+### First Normal Form 1NF
+- Remove repeating groups of data
+- create saperate tables for each group of related data
+- each table should have a primary key.
+
+### Second Normal Form 2NF
+- remove data that doesnt depend on the table's primary key(move to appropriate table or create new one)
+- Foreign keys are used to identify table relationships
+
+### Third Normal Form 3NF
+- Remove attributes that rely on other non-key attributes (i.e. remove columns that depend on columns that aren’t foreign or primary keys)
+
+## Combining Queries
+
+### UNION and UNION ALL
+Used to combine the results of two or more `SELECT` statements
+- Every select statement in union must have same number of columns and similar datatypes and in similar order
+
+Union selects only distinct values by default. `UNION ALL` allows duplicate values as well.
+
+```
+SELECT * FROM table1
+UNION
+SELECT * FROM table2;
+
+SELECT * FROM table1
+UNION ALL
+SELECT * FROM table2;
+```
+
+### INTERSECT
+Used to combine the results of two or more `SELECT` statements
+- Every select statement in union must have same number of columns and similar datatypes and in similar order
+
+```
+SELECT * FROM table1
+INTERSECT
+SELECT * FROM table2;
 ```
