@@ -580,3 +580,158 @@ SELECT * FROM table1
 INTERSECT
 SELECT * FROM table2;
 ```
+
+## CTE - Common Table Expression
+The queries are not stored anywhere and the lookup is performed eachtime the cte is run
+
+```
+WITH <CTE name> AS
+(
+    <sql query>
+)
+SELECT entities from the CTE query
+
+WITH CTE_Employee AS
+(
+    SELECT FirstName, lastName, Gender,
+    COUNT(Gender) OVER (PARTITION by Gender) as TotalGender,
+    AVG(Salary) OVER (PARTITION by Gender) as AvgSalary
+
+    FROM emp
+    JOIN sal
+    ON emp.id = sal.empid
+)
+SELECT FirstName, AvgSalary
+FROM CTE_Employee;
+```
+
+## Views
+- Virtual table
+- Only Select can be performed on Views
+
+```
+CREATE VIEW <ViewNAme> AS
+<query for data to be included in the view>;
+
+CREATE VIEW companydetails AS
+SELECT name, age, address
+From company;
+
+SELECT * FROM companydetails;
+```
+
+## Window Functions
+Window functions perform aggregate operations on groups of rows but they produce a result for EACH Row
+(Unlike GROUP by which reduces to single group)
+
+OVER specifies which groups to run aggregate function on. partition by department divides the entire table
+as depertments(each called windows) and runs aggregate on each of them
+
+```
+SELECT department, AVG(salary)
+FROM employees
+GROUP BY department;
+
+| department (each department once) | avg (and their avg) |
+
+
+
+SELECT emp_no, department, salary, 
+    AVG(salary) OVER(PARTITION BY department) AS dept_avg
+    FROM employees;
+
+|emp_no | department | salary | dept_avg |
+(entry of each employee )
+```
+
+### RANK()
+Find Rank of current row within it's partition
+
+```
+# calculating overall rank of each employee across every department
+SELECT
+RANK() OVER(ORDER BY salary DESC) AS overall_rank
+FROM
+employees;
+
+# calculating rank of each employee within each department for each department
+SELECT
+RANK() OVER(
+    PARTITION BY department
+    ORDER BY 
+        salary DESC
+) AS dept_rank
+FROM
+    employees;
+ 
+```
+
+## Functions and Procedures
+
+### Functions
+- System and Userdefined functions
+- can have multiple sql statements
+- Can return any type of results like table or a single value
+
+Can't use transactions inside the function
+
+```
+CREATE (or REPLACE) FUNCTION <function_name>(<parameters-list>)
+RETURNS <return_type>
+LANGUAGE plpgsql
+AS
+$$
+    DECLARE
+        <variables>
+    BEGIN
+        <sql statements>
+    END
+$$
+```
+
+### Procedure
+- Can perform transactions
+- Can't return a result like table. can only return INOUT parameters.
+
+```
+CREATE (or REPLACE) PROCEDURE <procedure_name> (<parameters-list>)
+LANGUAGE plpgsql
+AS
+$$
+DECLARE
+    <variables>
+BEGIN
+    <sql statements>
+END
+$$
+```
+
+### Parameter types
+- IN
+- OUT
+- INOUT
+
+### Example procedure
+
+```
+CREATE OR REPLACE PROCEDURE AddEmployee
+(
+    EmpId INOUT INT,
+    EmpName VARCHAR(100),
+    EmpDob DATE,
+    EmpCity VARCHAR(100)
+)
+LANGUAGE plpgsql AS
+$$
+BEGIN
+    INSERT INTO Employees(name, dob, city)
+    VALUES (EmpId,
+        EmpDob,
+        EmpCity
+    ) RETURNING Id INTO EmpId;
+END
+$$;
+
+
+CALL AddEmployee(null, 'Tom', '2000-03-02:)
+```
