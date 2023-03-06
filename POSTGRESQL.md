@@ -735,3 +735,86 @@ $$;
 
 CALL AddEmployee(null, 'Tom', '2000-03-02:)
 ```
+
+## Arrays Datatype
+Arrays start at index 1
+
+### cardinality
+count of elements in an array
+
+```
+create table(
+    colors text[],
+    (or)
+    colors text ARRAY,
+)
+
+insert into (...)
+values
+(ARRAY['red', 'white', 'green'])
+
+(OR)
+
+insert into (...)
+values('{"yelow", "green", "blue"}');
+
+-- Acessing
+select color[1]
+from table;
+
+-- returns each row with the count of elements in color array
+select 
+    cardinality(color)
+from table;
+
+(or)
+
+select 
+    array_length(color, 1)
+from table;
+
+-- get entry where first element is red
+select rowname
+from tablename
+where color[1] = 'red';
+
+-- get all entries where there is a red color
+select rowname
+from tablename
+where 'red' = ANY (color)
+
+-- get the position of 'red' where there is red in the color array else null
+select
+    array_position(color, 'red')
+from tablename;
+
+-- contains
+select
+    rownames
+from tablename
+where color @> '{"black"}'  <- @> is contains
+
+-- select a range of elements
+select 
+    color[1:2]
+from tablename;
+```
+
+## Backup and restoring database
+
+```
+pg_dump --help
+
+pg_dump -<format> -h <host> -U <user> <database> -f <outputfile>
+# custom format
+pg_dump -Fc -h localhost -U dbuser dbuserdb -f backup.dump
+
+## restoring
+# create new database
+sudo su - postgres
+createdb restoreddb -O dbuser
+logout
+
+pg_restore -d <database name to restore to> -h <host> -U <user> <path to backup file>
+pg_restore -d restoreddb -h localhost -U dbuser backup.dump
+```
