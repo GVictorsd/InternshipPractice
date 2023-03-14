@@ -337,7 +337,7 @@ render(){
 }
 ```
 
-### binding event handlers
+### Binding event handlers
 - required because of the way `this` works in js
 - `this` keyword is `undefined` in an event handler in case of a class component. so, binding is required for event handlers
 
@@ -479,6 +479,7 @@ const nameList = names.map((name,indes) => <h2 key={index}> {name} </h2>)
 ```
 
 ## Styling and CSS
+
 - CSS stylesheets
 ```
 # create css file
@@ -493,4 +494,42 @@ let className = props.primary ? 'primary' : '';
 return (
     <div className={className}>...</div>
 )
+
+# template literals in js
+<h1 className={`${props.className} class2`}> TEXT </h1>
+```
+
+- Inline Styling
+```
+const heading = {
+    fontSize: '72px',
+    color: 'blue'
+}
+
+<h1 style={heading}> INLINE </h1>
+```
+
+- CSS modules
+
+Normal stylesheet gets globally scoped to children components as well which can lead to conflicts.
+css modules are locally scoped and doesnt apply to children components
+
+```
+file: mystyles.css(normal css file)
+.error{
+    color: red
+}
+
+file: mystyles.module.css(css module file)
+.success{
+    color: green
+}
+
+# importing
+import './mystyles.css'
+import styles from './mystyles.module.css'
+
+# using
+<h1 className="error">text</h1>
+<h1 className = {styles.success}>text</h1>
 ```
